@@ -45,7 +45,7 @@ Diagram::Diagram(char const* ascii_symbs) : csize{0}
             if(counter && last != '\0')
             {
                 if(csize == __n)
-                    throw std::runtime_error("Too many signals.")
+                    throw std::runtime_error("Too many signals.");
                 sections[csize++] = Signal(last, counter);
                 counter = 1;
             }
@@ -55,19 +55,19 @@ Diagram::Diagram(char const* ascii_symbs) : csize{0}
     if (counter)
     {
         if(csize == __n)
-            throw std::runtime_error("Too many signals.")
+            throw std::runtime_error("Too many signals.");
         sections[csize++] = Signal(last, counter);
     }
 }
 
-str::istream& Diagram::input(std::istream& st)
+std::istream& Diagram::input(std::istream& st)
 {
     for (size_t i = 0; i < csize; i++)
         sections[i].input(st);
     return st;
 }
 
-str::ostream& Diagram::output(std::ostream& st) const
+std::ostream& Diagram::output(std::ostream& st) const
 {
     for (size_t i = 0; i < csize; i++)
         sections[i].output(st);
@@ -100,7 +100,7 @@ Diagram& Diagram::replace(int timestamp, Diagram const& second)
         result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
     }
     if (i == size())
-        throw std::runtime_error("Timestamp arg was out of available signal time range.")
+        throw std::runtime_error("Timestamp arg was out of available signal time range.");
     result.insertSignalBlock(Signal(sections[i].state, sections[i].time - time + timestamp - 1));
 
     for (size_t j = 0; j < second.size(); j++)
@@ -128,7 +128,7 @@ Diagram& Diagram::repeat(size_t n)
 
 Diagram& Diagram::rshift(int tshift)
 {
-    if (tshift == 0)
+    if (get_total_time() == 0 ||  tshift == 0)
      return *this;
     if (tshift < 0)
      return lshift(-tshift);
@@ -144,14 +144,14 @@ Diagram& Diagram::rshift(int tshift)
     }
     auto pos = i;
     if (sections[i].time - time + tshift)
-        result.insertSignalBlock(Signal(Signal(sections[i].state, sections[i].time - time + tshift));
+        result.insertSignalBlock(Signal(sections[i].state, sections[i].time - time + tshift));
     i++;
     for (; i < size(); i++)
-        result.insertSignalBlock(Signal(Signal(sections[i].state, sections[i].time));
+        result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
     for (i = 0; i < pos; i++)
-        result.insertSignalBlock(Signal(Signal(sections[i].state, sections[i].time));
+        result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
     if (time - tshift)
-        result.insertSignalBlock(Signal(Signal(sections[i].state, time - tshift));
+        result.insertSignalBlock(Signal(sections[i].state, time - tshift));
     result.mergeBlocks();
     return *this = std::move(result);
 }
@@ -174,14 +174,14 @@ Diagram& Diagram::lshift(int tshift)
     }
     auto pos = i;
     if (time - tshift)
-        result.insertSignalBlock(Signal(Signal(sections[i].state, time - tshift));
+        result.insertSignalBlock(Signal(sections[i].state, time - tshift));
     i++;
     for (; i < size(); i++)
-        result.insertSignalBlock(Signal(Signal(sections[i].state, sections[i].time));
+        result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
     for (i = 0; i < pos; i++)
-        result.insertSignalBlock(Signal(Signal(sections[i].state, sections[i].time));
+        result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
     if (tshift - time + sections[i].time )
-        result.insertSignalBlock(Signal(Signal(sections[i].state, tshift - time + sections[i].time));
+        result.insertSignalBlock(Signal(sections[i].state, tshift - time + sections[i].time));
     result.mergeBlocks();
     return *this = std::move(result);
 }
@@ -201,13 +201,6 @@ void Diagram::insertSignalBlock(Signal&& sig)
     sections[csize++] = sig;
 }
 
-void Diagram::insertSignalBlock(Signal const& sig)
-{
-    if (csize == __n)
-        throw std::runtime_error("Can't insert block.");
-    sections[csize++] = sig;
-}
-
 Diagram& Diagram::mergeBlocks()
 {
     char last = '\0';
@@ -221,7 +214,7 @@ Diagram& Diagram::mergeBlocks()
         {
             if (last != '\0')
             {
-                sections[resulting_size++] = Signal(last, block_time)
+                sections[resulting_size++] = Signal(last, block_time);
                 block_time = 1;
             }
             last = sections[i].state;
