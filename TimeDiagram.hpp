@@ -15,7 +15,7 @@ struct Signal
 class Diagram
 {
     public:
-    static size_t constexpr __n = 5;
+    static size_t constexpr __n = 20;
 
     private:
     Signal sections[__n];
@@ -36,5 +36,4 @@ class Diagram
     Diagram& mergeBlocks();
     int get_total_time() const;
     void insertSignalBlock(Signal&& sig);
-    void insertSignalBlock(Signal const& sig);
 };

@@ -6,7 +6,7 @@ void input_diagram(Diagram& diagram)
 {
     std::cout << "Input signal sections for diagram:\n\
     number of section - first line;\n\
-    sections - then (format <state|0, 1 or X> <time|initeger>): \n";
+    sections - then (format <state|0, 1 or X> <time|integer>): \n";
     diagram.input(std::cin);
 }
 

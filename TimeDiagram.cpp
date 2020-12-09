@@ -62,6 +62,7 @@ Diagram::Diagram(char const* ascii_symbs) : csize{0}
 
 std::istream& Diagram::input(std::istream& st)
 {
+    st >> csize;
     for (size_t i = 0; i < csize; i++)
         sections[i].input(st);
     return st;
@@ -81,8 +82,10 @@ Diagram Diagram::add(Diagram const& second) const
     Diagram result;
     for (size_t i = 0; i < size(); i++)
         result.sections[result.csize++] = sections[i];
+    
     for (size_t i = 0; i < second.size(); i++)
-        result.sections[result.csize++] = sections[i];
+        result.sections[result.csize++] = second.sections[i];
+
     result.mergeBlocks();
     return result;
 }
@@ -104,7 +107,7 @@ Diagram& Diagram::replace(int timestamp, Diagram const& second)
     result.insertSignalBlock(Signal(sections[i].state, sections[i].time - time + timestamp - 1));
 
     for (size_t j = 0; j < second.size(); j++)
-        result.insertSignalBlock(Signal(sections[j].state, second.sections[j].time));
+        result.insertSignalBlock(Signal(second.sections[j].state, second.sections[j].time));
     result.insertSignalBlock(Signal(sections[i].state, time - timestamp));
     i++;
     for (; i < size(); i++)
@@ -158,7 +161,7 @@ Diagram& Diagram::rshift(int tshift)
 
 Diagram& Diagram::lshift(int tshift)
 {
-    if (tshift == 0)
+    if (get_total_time() == 0 || tshift == 0)
      return *this;
     if (tshift < 0)
      return rshift(-tshift);
@@ -203,8 +206,10 @@ void Diagram::insertSignalBlock(Signal&& sig)
 
 Diagram& Diagram::mergeBlocks()
 {
+    if(size() == 0)
+    return *this;
     char last = '\0';
-    int block_time = 1;
+    int block_time = sections[0].time;
     size_t resulting_size = 0;
     for (size_t i = 0; i < size(); i++)
     {
@@ -215,7 +220,7 @@ Diagram& Diagram::mergeBlocks()
             if (last != '\0')
             {
                 sections[resulting_size++] = Signal(last, block_time);
-                block_time = 1;
+                block_time = sections[i].time;
             }
             last = sections[i].state;
         }
