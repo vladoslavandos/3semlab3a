@@ -13,7 +13,6 @@ std::istream& Signal::input(std::istream& st)
     return st;
 }
 
-
 std::ostream& Signal::output(std::ostream& st) const
 {
     for (int i = 0; i < time; i++)
@@ -146,14 +145,14 @@ Diagram& Diagram::rshift(int tshift)
          break;
     }
     auto pos = i;
-    if (sections[i].time - time + tshift)
+    if (sections[i].time - time + tshift != 0)
         result.insertSignalBlock(Signal(sections[i].state, sections[i].time - time + tshift));
     i++;
     for (; i < size(); i++)
         result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
     for (i = 0; i < pos; i++)
         result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
-    if (time - tshift)
+    if (time - tshift != 0)
         result.insertSignalBlock(Signal(sections[i].state, time - tshift));
     result.mergeBlocks();
     return *this = std::move(result);
@@ -164,7 +163,7 @@ Diagram& Diagram::lshift(int tshift)
     if (get_total_time() == 0 || tshift == 0)
      return *this;
     if (tshift < 0)
-     return rshift(-tshift);
+     return rshift(-tshift);//return rshift(get_total_time() - tshift)
     Diagram result;
     int time = 0;
     tshift %= get_total_time();
@@ -176,14 +175,14 @@ Diagram& Diagram::lshift(int tshift)
          break;
     }
     auto pos = i;
-    if (time - tshift)
+    if (time - tshift != 0)
         result.insertSignalBlock(Signal(sections[i].state, time - tshift));
     i++;
     for (; i < size(); i++)
         result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
     for (i = 0; i < pos; i++)
         result.insertSignalBlock(Signal(sections[i].state, sections[i].time));
-    if (tshift - time + sections[i].time )
+    if (tshift - time + sections[i].time != 0)
         result.insertSignalBlock(Signal(sections[i].state, tshift - time + sections[i].time));
     result.mergeBlocks();
     return *this = std::move(result);
@@ -197,7 +196,7 @@ int Diagram::get_total_time() const
     return result;
 }
 
-void Diagram::insertSignalBlock(Signal&& sig)
+void Diagram::insertSignalBlock(Signal const& sig)
 {
     if (csize == __n)
         throw std::runtime_error("Can't insert block.");

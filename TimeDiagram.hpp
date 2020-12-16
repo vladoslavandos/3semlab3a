@@ -35,5 +35,5 @@ class Diagram
     Diagram& lshift(int tshift);
     Diagram& mergeBlocks();
     int get_total_time() const;
-    void insertSignalBlock(Signal&& sig);
+    void insertSignalBlock(Signal const& sig);
 };
